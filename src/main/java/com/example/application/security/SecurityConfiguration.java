@@ -23,14 +23,7 @@ public class SecurityConfiguration extends VaadinWebSecurity {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-        // http
-        //     .authorizeHttpRequests(authorize -> authorize
-        //         .requestMatchers("/login/**", "/register/**", "/etusivu/**", "/")
-        //         .permitAll()
-        //         .anyRequest()
-        //         .permitAll()); // Catch-all for all other requests
-
-        /* http.authorizeHttpRequests(
+        http.authorizeHttpRequests(
             authorize -> authorize.requestMatchers(new AntPathRequestMatcher("/**"))
             .permitAll());
 
@@ -45,7 +38,7 @@ public class SecurityConfiguration extends VaadinWebSecurity {
         http.authorizeHttpRequests(
             authorize -> authorize.requestMatchers(new AntPathRequestMatcher("/etusivu/**"))
             .permitAll());
- */
+
         super.configure(http);
         setLoginView(http, LoginView.class);
     }

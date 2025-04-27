@@ -29,10 +29,10 @@ public class FooterLayout extends VerticalLayout implements RouterLayout {
     private final Button loginBtn = new Button("Kirjaudu sisään");
     private final Button registerBtn = new Button("Rekisteröidy");
     private final Button logoutBtn = new Button("Kirjaudu ulos");
-    @Autowired
-    private AuthenticatedUser authenticatedUser;
+    private final AuthenticatedUser authenticatedUser;
 
-    public FooterLayout() {
+    public FooterLayout(AuthenticatedUser authenticatedUser) {
+        this.authenticatedUser = authenticatedUser;
         setSizeFull();
         // setPadding(false);
         // setSpacing(false);
@@ -43,12 +43,34 @@ public class FooterLayout extends VerticalLayout implements RouterLayout {
         loginBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         registerBtn.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
         logoutBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        
-        footer.add(loginBtn, registerBtn);
-        footer.add(logoutBtn);
-    
+        logoutBtn.setVisible(false);
+        footer.add(loginBtn, registerBtn, logoutBtn);
+
+        loginBtn.addClickListener(event -> getUI().ifPresent(ui -> ui.navigate("login")));
+        registerBtn.addClickListener(event -> getUI().ifPresent(ui -> ui.navigate("register")));
+        logoutBtn.addClickListener(event -> logOutUser());
+
         add(container, footer);
         expand(container);
+
+        updateFooter();
+    }
+
+    private void updateFooter() {
+        authenticatedUser.get().ifPresentOrElse(user -> {
+            loginBtn.setVisible(false);
+            registerBtn.setVisible(false);
+            logoutBtn.setVisible(true);
+        }, () -> {
+            loginBtn.setVisible(true);
+            registerBtn.setVisible(true);
+            logoutBtn.setVisible(false);
+        });
+    }
+    
+    private void logOutUser() {
+        authenticatedUser.logout();
+        getUI().ifPresent(ui -> ui.navigate("etusivu"));
     }
 
     public void showRouterLayoutContent(HasElement content) {
@@ -56,48 +78,4 @@ public class FooterLayout extends VerticalLayout implements RouterLayout {
         container.getElement().appendChild(content.getElement());
     }
 
-    private void updateFooter() {
-        footer.removeAll();
-        authenticatedUser.get().ifPresentOrElse(
-            user -> footer.add(logoutBtn),
-            () -> footer.add(loginBtn, registerBtn)
-        );
-    }
-
-
 }
-
-   /* 
-     authenticatedUser.get().ifPresentOrElse(
-            user -> {
-                logoutBtn.addClickListener(e -> {
-                    authenticatedUser.logout();
-                    updateFooter();
-                });
-                footer.add(logoutBtn);
-            },
-            () -> {
-                footer.add(loginBtn, registerBtn);
-            });
-        // Optional<User> maybeUser = authenticatedUser.get();
-        // if (maybeUser.isPresent()) {
-        //     logoutBtn.addClickListener(e -> {
-        //         authenticatedUser.logout();
-        //     });
-        //     footer.add(logoutBtn);
-        // } else {
-        //     footer.add(loginBtn, registerBtn);
-        // }
-
-
-     *  private void setupFooter() {
-        footer.setWidth("100%");
-        footer.setHeight("min-content");
-        footer.addClassName(Gap.MEDIUM);
-        loginBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        registerBtn.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
-        footer.add(loginBtn, registerBtn);
-        getElement().appendChild(footer.getElement());
-    }
-     */
-
