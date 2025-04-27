@@ -1,6 +1,5 @@
 package com.example.application.views;
 
-
 import com.example.application.views.etusivu.EtusivuView;
 import com.example.application.views.hallintapaneeli.HallintapaneeliView;
 import com.example.application.views.tapahtumat.TapahtumatView;
@@ -39,7 +38,6 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
 @Layout
 @AnonymousAllowed
 public class MainLayout extends AppLayout {
-
     /**
      * A simple navigation item component, based on ListItem element.
      */
@@ -69,7 +67,6 @@ public class MainLayout extends AppLayout {
         public Class<?> getView() {
             return view;
         }
-
     }
 
     public MainLayout() {
@@ -105,14 +102,10 @@ public class MainLayout extends AppLayout {
     }
 
     private MenuItemInfo[] createMenuItems() {
-        return new MenuItemInfo[]{ //
-                new MenuItemInfo("Etusivu", LineAwesomeIcon.PENCIL_RULER_SOLID.create(), EtusivuView.class), //
-
-                new MenuItemInfo("Tapahtumat", LineAwesomeIcon.PENCIL_RULER_SOLID.create(), TapahtumatView.class), //
-
-                new MenuItemInfo("Hallintapaneeli", LineAwesomeIcon.PENCIL_RULER_SOLID.create(),
-                        HallintapaneeliView.class), //
-
+        return new MenuItemInfo[]{
+            new MenuItemInfo("Etusivu", LineAwesomeIcon.SEARCH_SOLID.create(), EtusivuView.class),
+            new MenuItemInfo("Tapahtumat", LineAwesomeIcon.CALENDAR_SOLID.create(), TapahtumatView.class),
+            new MenuItemInfo("Hallintapaneeli", LineAwesomeIcon.WRENCH_SOLID.create(), HallintapaneeliView.class),
         };
     }
 

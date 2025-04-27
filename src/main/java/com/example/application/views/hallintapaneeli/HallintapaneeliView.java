@@ -14,6 +14,9 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import com.vaadin.flow.theme.lumo.LumoUtility.Gap;
+
+import jakarta.annotation.security.RolesAllowed;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
@@ -21,6 +24,7 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 @Route("hallintapaneeli")
 @Menu(order = 2, icon = LineAwesomeIconUrl.PENCIL_RULER_SOLID)
 @Uses(Icon.class)
+@RolesAllowed("ADMIN")
 public class HallintapaneeliView extends Composite<VerticalLayout> {
 
     public HallintapaneeliView() {
