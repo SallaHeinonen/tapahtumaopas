@@ -34,7 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 @PageTitle("Etusivu")
-@Route(value = "etusivu", layout = FooterLayout.class)
+@Route(value = "", layout = FooterLayout.class)
 @Menu(order = 0, icon = LineAwesomeIconUrl.PENCIL_RULER_SOLID)
 @Uses(Icon.class)
 @AnonymousAllowed
@@ -97,7 +97,6 @@ public class EtusivuView extends Composite<VerticalLayout> {
         eventGrid.addColumn("date").setAutoWidth(true).setHeader("Tapahtumapäivä");
         eventGrid.addColumn("startTime").setAutoWidth(true).setHeader("Aloitusaika");
         eventGrid.addColumn("endTime").setAutoWidth(true).setHeader("Päättymisaika");
-        // TODO: katso jos lisää sarakkeita
         eventGrid.addColumn(event -> event.getEventLocation() != null ? event.getEventLocation().getPlace() : "").setAutoWidth(true).setHeader("Tapahtumapaikka");
         eventGrid.addColumn(event -> event.getEventLocation() != null ? event.getEventLocation().getCity() : "").setAutoWidth(true).setHeader("Kaupunki/kaupunginosa");
         LitRenderer<Event> free = LitRenderer.<Event>of(
@@ -113,14 +112,7 @@ public class EtusivuView extends Composite<VerticalLayout> {
         eventGrid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         setGridData(eventGrid);
 
-
         binder = new BeanValidationBinder<>(Event.class);
-        
-        // Footer layout with login
-        // HorizontalLayout loginHorizontal = new HorizontalLayout();
-        // loginHorizontal.addClassName(Gap.MEDIUM);
-        // loginHorizontal.setWidth("100%");
-        // loginHorizontal.setHeight("min-content");
         
         // Styling for buttons
         searchBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -136,11 +128,13 @@ public class EtusivuView extends Composite<VerticalLayout> {
                         eventPlaceField, eventCityField, eventFreeCheckBox, searchBtn, clearBtn);
 
         eventsGridLayout.add(eventGrid);
-        // loginHorizontal.add(loginBtn, registerBtn);
+
     }
 
     private void setGridData(Grid<Event> grid) {
         grid.setItems(eventService.getAll());
     }
+
+    
 
 }

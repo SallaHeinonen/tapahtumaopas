@@ -1,10 +1,11 @@
-package com.example.application.login;
+package com.example.application.views.login;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
 
 import com.example.application.data.User;
 import com.example.application.services.UserService;
@@ -21,13 +22,15 @@ import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MultiFileMemoryBuffer;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 
+@AnonymousAllowed
+@Component
 public class RegisterComponent extends Div {
 
     private Dialog registerDialog;
 
     public RegisterComponent(UserService userService, PasswordEncoder passwordEncoder) {
-
         registerDialog = new Dialog();
         registerDialog.setHeaderTitle("Rekisteröidy");
         User user = new User();
@@ -35,22 +38,21 @@ public class RegisterComponent extends Div {
         VerticalLayout dialogLayout = new VerticalLayout();
         dialogLayout.setPadding(false);
         dialogLayout.setSpacing(false);
-        dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
-        dialogLayout.getStyle().set("width", "18rem").set("max-width", "100%");
+        // dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
+        // dialogLayout.getStyle().set("width", "18rem").set("max-width", "100%");
         TextField userNameField = new TextField("Käyttäjänimi");
         TextField firstNameField = new TextField("Etunimi");
         TextField lastNameField = new TextField("Sukunimi");
         PasswordField passwordField = new PasswordField("Salasana");
         PasswordField confirmPasswordField = new PasswordField("Salasana uudelleen");
         dialogLayout.add(userNameField, firstNameField, lastNameField, passwordField, confirmPasswordField);
+        registerDialog.add(dialogLayout);
 
         Button saveBtn = new Button("Tallena");
         Button cancelBtn = new Button("Peruuta");
         registerDialog.getFooter().add(saveBtn);
         registerDialog.getFooter().add(cancelBtn);
-        registerDialog.add(dialogLayout);
 
-        registerDialog.open();
         add(registerDialog);
         
         // Datan sitominen useriin
@@ -78,6 +80,7 @@ public class RegisterComponent extends Div {
                 binder.writeBean(user);
                 userService.save(user);
                 UI.getCurrent().navigate("login");
+                registerDialog.close();
             } catch (ValidationException ex) {
                 throw new RuntimeException(ex);
             }
