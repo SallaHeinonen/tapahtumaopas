@@ -38,8 +38,7 @@ public class RegisterComponent extends Div {
         VerticalLayout dialogLayout = new VerticalLayout();
         dialogLayout.setPadding(false);
         dialogLayout.setSpacing(false);
-        // dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
-        // dialogLayout.getStyle().set("width", "18rem").set("max-width", "100%");
+
         TextField userNameField = new TextField("Käyttäjänimi");
         TextField firstNameField = new TextField("Etunimi");
         TextField lastNameField = new TextField("Sukunimi");

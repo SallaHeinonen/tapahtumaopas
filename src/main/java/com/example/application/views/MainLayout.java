@@ -101,10 +101,10 @@ public class MainLayout extends AppLayout {
             Button registerBtn = new Button("Rekisteröidy");
             loginBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             registerBtn.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
-            RegisterComponent registerComponent = new RegisterComponent(userService, passwordEncoder);
             loginBtn.addClickListener(e -> loginView.setOpened(true));
+            RegisterComponent registerComponent = new RegisterComponent(userService, passwordEncoder);
             registerBtn.addClickListener(e -> registerComponent.openRegisterDialog());
-            layout.add(loginBtn, registerBtn);
+            layout.add(loginBtn, registerBtn, registerComponent);
         }
         return layout;
     }
