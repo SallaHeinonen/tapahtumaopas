@@ -10,7 +10,6 @@ import com.vaadin.flow.component.login.LoginI18n;
 import org.springframework.stereotype.Component;
 import com.example.application.security.AuthenticatedUser;
 
-
 @AnonymousAllowed
 @PageTitle("Login")
 @Route(value = "login")

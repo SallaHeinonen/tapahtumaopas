@@ -1,17 +1,27 @@
 package com.example.application.views;
 
+import com.example.application.data.User;
+import com.example.application.security.AuthenticatedUser;
+import com.example.application.services.UserService;
 import com.example.application.views.etusivu.EtusivuView;
 import com.example.application.views.hallintapaneeli.HallintapaneeliView;
+import com.example.application.views.login.LoginView;
+import com.example.application.views.login.RegisterComponent;
 import com.example.application.views.tapahtumat.TapahtumatView;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.HasElement;
 import com.vaadin.flow.component.applayout.AppLayout;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Footer;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Header;
 import com.vaadin.flow.component.html.ListItem;
 import com.vaadin.flow.component.html.Nav;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.html.UnorderedList;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Layout;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
@@ -30,17 +40,80 @@ import com.vaadin.flow.theme.lumo.LumoUtility.Padding;
 import com.vaadin.flow.theme.lumo.LumoUtility.TextColor;
 import com.vaadin.flow.theme.lumo.LumoUtility.Whitespace;
 import com.vaadin.flow.theme.lumo.LumoUtility.Width;
+import java.util.Optional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.vaadin.lineawesome.LineAwesomeIcon;
-
 /**
  * The main view is a top-level placeholder for other views.
  */
 @Layout
 @AnonymousAllowed
 public class MainLayout extends AppLayout {
+
+    private final Div container = new Div();
+    private AuthenticatedUser authenticatedUser;
+    private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
+    private final LoginView loginView;
     /**
      * A simple navigation item component, based on ListItem element.
      */
+     public MainLayout(AuthenticatedUser authenticatedUser,
+                        UserService userService,
+                        PasswordEncoder passwordEncoder,
+                        LoginView loginView) {
+        this.authenticatedUser = authenticatedUser;
+        this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
+        this.loginView = loginView;
+        addToNavbar(createHeaderContent());
+        CreateContainer mainContainer = new CreateContainer();
+        setContent(mainContainer);
+
+    }
+    public class CreateContainer extends VerticalLayout {
+        // private final Class<? extends Component> view;
+
+        public CreateContainer () {
+            setSizeFull();
+            container.setSizeFull();
+            add(container);
+            Footer footer = createFooter();
+            add(footer);
+            expand(container);
+            //  setFlexGrow(1, container);
+        }
+    }
+
+    public Footer createFooter() {
+        Footer layout = new Footer();
+        layout.addClassName(Gap.MEDIUM);
+
+        Optional<User> maybeUser = authenticatedUser.get();
+        if (maybeUser.isPresent()) {
+
+            Button logoutBtn = new Button("Kirjaudu ulos");
+            logoutBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+            logoutBtn.addClickListener(e -> { authenticatedUser.logout(); });
+            layout.add(logoutBtn);
+        } else {
+            Button loginBtn = new Button("Kirjaudu sisään");
+            Button registerBtn = new Button("Rekisteröidy");
+            loginBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            registerBtn.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+            RegisterComponent registerComponent = new RegisterComponent(userService, passwordEncoder);
+            loginBtn.addClickListener(e -> loginView.setOpened(true));
+            registerBtn.addClickListener(e -> registerComponent.openRegisterDialog());
+            layout.add(loginBtn, registerBtn);
+        }
+        return layout;
+    }
+
+    public void showRouterLayoutContent(HasElement content) {
+        container.removeAll();
+        container.getElement().appendChild(content.getElement());
+    }
+
     public static class MenuItemInfo extends ListItem {
 
         private final Class<? extends Component> view;
@@ -67,10 +140,6 @@ public class MainLayout extends AppLayout {
         public Class<?> getView() {
             return view;
         }
-    }
-
-    public MainLayout() {
-        addToNavbar(createHeaderContent());
     }
 
     private Component createHeaderContent() {
