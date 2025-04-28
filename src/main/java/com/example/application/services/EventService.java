@@ -5,6 +5,8 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import com.example.application.data.Event;
 import com.example.application.data.EventRepository;
+import com.example.application.views.etusivu.Filters;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -32,6 +34,10 @@ public class EventService {
 
     public List<Event> getAll() {
         return repository.findAll();
+    }
+
+    public List<Event> searchEvents(Filters filters) {
+        return repository.findAll(filters);
     }
 
     public Page<Event> list(Pageable pageable) {

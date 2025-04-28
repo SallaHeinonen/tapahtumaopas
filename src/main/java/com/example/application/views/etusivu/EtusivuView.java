@@ -31,6 +31,11 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import com.vaadin.flow.theme.lumo.LumoUtility.Gap;
+
+import oshi.jna.platform.mac.SystemB.Pri;
+
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
@@ -43,9 +48,8 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 public class EtusivuView extends Composite<VerticalLayout> {
 
     private final Grid<Event> eventGrid = new Grid<>(Event.class, false);
-    private Event event;
+
     private final BeanValidationBinder<Event> binder;
-    
     private final TextField eventNameField = new TextField("Tapahtuman nimi");
     private final DatePicker eventDatePicker = new DatePicker("Tapahtumapäivä");
     private final TimePicker eventStartTime = new TimePicker("Aloitusaika");
@@ -57,10 +61,12 @@ public class EtusivuView extends Composite<VerticalLayout> {
     private final Button searchBtn = new Button("Etsi");
     private final Button clearBtn = new Button("Tyhjennä");
     
-    private final EventService eventService;
-    private final EventLocationService eventLocationService;
-    private final EventOrganizerService eventOrganizerService;
-    private final EventInfoService eventInfoService;
+    private Event event;
+    private EventService eventService;
+    private EventLocationService eventLocationService;
+    private EventOrganizerService eventOrganizerService;
+    private EventInfoService eventInfoService;
+    private Filters filter;
 
     public EtusivuView(EventService eventService,
                     EventLocationService eventLocationService,
@@ -70,7 +76,6 @@ public class EtusivuView extends Composite<VerticalLayout> {
         this.eventLocationService = eventLocationService;
         this.eventOrganizerService = eventOrganizerService;
         this.eventInfoService = eventInfoService;
-                
         // getContent().setWidth("100%");
         //getContent().setHeight("100%");
 
@@ -111,16 +116,42 @@ public class EtusivuView extends Composite<VerticalLayout> {
         eventGrid.setItems(query -> eventService.list(VaadinSpringDataHelpers.toSpringPageRequest(query)).stream());
         // eventGrid.setItems(eventService.getAll());
         eventGrid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
-        setGridData(eventGrid);
 
+        setGridData(eventGrid);
         binder = new BeanValidationBinder<>(Event.class);
         
         // Styling for buttons
         searchBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         clearBtn.addThemeVariants(ButtonVariant.LUMO_ERROR);
 
+        // Filtering system
+        searchBtn.addClickListener(event -> {
+        Filters filters = new Filters();
+        filters.setEventName(eventNameField);
+        filters.setEventDate(eventDatePicker);
+        filters.setEventStart(eventStartTime);
+        filters.setEventEnd(eventEndTime);
+        filters.setEventPlace(eventPlaceField);
+        filters.setEventCity(eventCityField);
+        filters.setEventFree(eventFreeCheckBox);
+
+        List<Event> filteredEvents = eventService.searchEvents(filters);
+        eventGrid.setItems(filteredEvents);
+        });
+
+        clearBtn.addClickListener(event -> {
+            eventNameField.clear();
+            eventDatePicker.clear();
+            eventStartTime.clear();
+            eventEndTime.clear();
+            eventPlaceField.clear();
+            eventCityField.clear();
+            eventFreeCheckBox.clear();
+            eventGrid.setItems(eventService.getAll());
+        });
+
         // Adding components+setting flex
-        getContent().add(mainLayoutHorizontal); // , loginHorizontal
+        getContent().add(mainLayoutHorizontal);
         mainLayoutHorizontal.add(textFieldsLayout, eventsGridLayout);
         mainLayoutHorizontal.setFlexGrow(0, textFieldsLayout);
         mainLayoutHorizontal.setFlexGrow(5, eventsGridLayout);
@@ -129,8 +160,24 @@ public class EtusivuView extends Composite<VerticalLayout> {
                         eventPlaceField, eventCityField, eventFreeCheckBox, searchBtn, clearBtn);
 
         eventsGridLayout.add(eventGrid);
+        refreshGrid(eventGrid);
 
     }
+
+    private void refreshGrid(Grid<Event> grid) {
+        grid.select(null);
+        grid.getDataProvider().refreshAll();
+    }
+
+    private void clearForm() {
+        populateForm(null);
+    }
+
+    private void populateForm(Event value) {
+        this.event = event;
+        binder.readBean(this.event);
+    }
+
 
     private void setGridData(Grid<Event> grid) {
         grid.setItems(eventService.getAll());

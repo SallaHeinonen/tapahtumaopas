@@ -72,8 +72,6 @@ public class MainLayout extends AppLayout {
 
     }
     public class CreateContainer extends VerticalLayout {
-        // private final Class<? extends Component> view;
-
         public CreateContainer () {
             setSizeFull();
             container.setSizeFull();
@@ -81,7 +79,6 @@ public class MainLayout extends AppLayout {
             Footer footer = createFooter();
             add(footer);
             expand(container);
-            //  setFlexGrow(1, container);
         }
     }
 
