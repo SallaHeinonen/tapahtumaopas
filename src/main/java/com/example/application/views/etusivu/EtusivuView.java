@@ -12,17 +12,14 @@ import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Main;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.component.timepicker.TimePicker;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.renderer.LitRenderer;
 import com.vaadin.flow.router.Menu;
@@ -31,12 +28,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import com.vaadin.flow.theme.lumo.LumoUtility.Gap;
-
-import oshi.jna.platform.mac.SystemB.Pri;
-
 import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
 @PageTitle("Etusivu")
@@ -48,25 +40,14 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 public class EtusivuView extends Composite<VerticalLayout> {
 
     private final Grid<Event> eventGrid = new Grid<>(Event.class, false);
-
     private final BeanValidationBinder<Event> binder;
-    private final TextField eventNameField = new TextField("Tapahtuman nimi");
-    private final DatePicker eventDatePicker = new DatePicker("Tapahtumapäivä");
-    private final TimePicker eventStartTime = new TimePicker("Aloitusaika");
-    private final TimePicker eventEndTime = new TimePicker("Päättymisaika");
-    private final TextField eventPlaceField = new TextField("Tapahtumapaikka");
-    private final TextField eventCityField = new TextField("Kaupunki/Kaupunginosa");
-    private final Checkbox eventFreeCheckBox = new Checkbox("Maksuton");
 
-    private final Button searchBtn = new Button("Etsi");
-    private final Button clearBtn = new Button("Tyhjennä");
-    
     private Event event;
     private EventService eventService;
     private EventLocationService eventLocationService;
     private EventOrganizerService eventOrganizerService;
     private EventInfoService eventInfoService;
-    private Filters filter;
+    private Filters filters;
 
     public EtusivuView(EventService eventService,
                     EventLocationService eventLocationService,
@@ -76,24 +57,17 @@ public class EtusivuView extends Composite<VerticalLayout> {
         this.eventLocationService = eventLocationService;
         this.eventOrganizerService = eventOrganizerService;
         this.eventInfoService = eventInfoService;
-        // getContent().setWidth("100%");
-        //getContent().setHeight("100%");
 
         HorizontalLayout mainLayoutHorizontal = new HorizontalLayout();
-        // mainLayoutHorizontal.addClassName(Gap.MEDIUM);
         mainLayoutHorizontal.setWidth("100%");
-        // mainLayoutHorizontal.setHeight("100%");
 
         // Left layout for inputs
         VerticalLayout textFieldsLayout = new VerticalLayout();
         textFieldsLayout.setWidth(null);
-        // textFieldsLayout.setHeightFull();
-        textFieldsLayout.addClassName(Gap.SMALL);
         
         // Right layout for data grid
         VerticalLayout eventsGridLayout = new VerticalLayout();
         eventsGridLayout.setWidth(null);
-        // eventsGridLayout.setHeightFull();
 
         // Configure event grid
         eventGrid.setItems();
@@ -119,70 +93,27 @@ public class EtusivuView extends Composite<VerticalLayout> {
 
         setGridData(eventGrid);
         binder = new BeanValidationBinder<>(Event.class);
-        
-        // Styling for buttons
-        searchBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        clearBtn.addThemeVariants(ButtonVariant.LUMO_ERROR);
-
-        // Filtering system
-        searchBtn.addClickListener(event -> {
-        Filters filters = new Filters();
-        filters.setEventName(eventNameField);
-        filters.setEventDate(eventDatePicker);
-        filters.setEventStart(eventStartTime);
-        filters.setEventEnd(eventEndTime);
-        filters.setEventPlace(eventPlaceField);
-        filters.setEventCity(eventCityField);
-        filters.setEventFree(eventFreeCheckBox);
-
-        List<Event> filteredEvents = eventService.searchEvents(filters);
-        eventGrid.setItems(filteredEvents);
-        });
-
-        clearBtn.addClickListener(event -> {
-            eventNameField.clear();
-            eventDatePicker.clear();
-            eventStartTime.clear();
-            eventEndTime.clear();
-            eventPlaceField.clear();
-            eventCityField.clear();
-            eventFreeCheckBox.clear();
-            eventGrid.setItems(eventService.getAll());
-        });
 
         // Adding components+setting flex
         getContent().add(mainLayoutHorizontal);
         mainLayoutHorizontal.add(textFieldsLayout, eventsGridLayout);
+        addFilterInputs(textFieldsLayout); // Call the method to add the fields into the layout
         mainLayoutHorizontal.setFlexGrow(0, textFieldsLayout);
         mainLayoutHorizontal.setFlexGrow(5, eventsGridLayout);
 
-        textFieldsLayout.add(eventNameField, eventDatePicker, eventStartTime, eventEndTime, 
-                        eventPlaceField, eventCityField, eventFreeCheckBox, searchBtn, clearBtn);
-
         eventsGridLayout.add(eventGrid);
-        refreshGrid(eventGrid);
-
     }
 
-    private void refreshGrid(Grid<Event> grid) {
-        grid.select(null);
-        grid.getDataProvider().refreshAll();
+    private void addFilterInputs(VerticalLayout verticalLayout) {
+        filters = new Filters(this::refreshGrid);
+        verticalLayout.add(filters);
     }
 
-    private void clearForm() {
-        populateForm(null);
+    private void refreshGrid() {
+        eventGrid.setItems(eventService.searchEvents(filters));
     }
-
-    private void populateForm(Event value) {
-        this.event = event;
-        binder.readBean(this.event);
-    }
-
 
     private void setGridData(Grid<Event> grid) {
         grid.setItems(eventService.getAll());
     }
-
-    
-
 }

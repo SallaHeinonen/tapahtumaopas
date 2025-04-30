@@ -5,8 +5,11 @@ import java.util.List;
 
 import org.springframework.data.jpa.domain.Specification;
 import com.example.application.data.Event;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.timepicker.TimePicker;
 import jakarta.persistence.criteria.Predicate;
@@ -14,70 +17,40 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 
-public class Filters implements Specification<Event>{
+public class Filters extends VerticalLayout implements Specification<Event> {
 
-    private TextField eventName;
-    private DatePicker eventDate;
-    private TimePicker eventStart;
-    private TimePicker eventEnd;
-    private TextField eventPlace;
-    private TextField eventCity;
-    private Checkbox eventFree;
+    private TextField eventName = new TextField("Tapahtuman nimi");
+    private DatePicker eventDate = new DatePicker("Tapahtumapäivä");
+    private TimePicker eventStart = new TimePicker("Aloitusaika");
+    private TimePicker eventEnd = new TimePicker("Päättymisaika");
+    private TextField eventPlace = new TextField("Tapahtumapaikka");
+    private TextField eventCity = new TextField("Kaupunki/Kaupunginosa");
+    private Checkbox eventFree = new Checkbox("Maksuton");
+    private Button searchBtn = new Button("Etsi");
+    private Button clearBtn = new Button("Tyhjennä");
+    
+    public Filters(Runnable onSearch) {
 
-    public TextField getEventName() {
-        return eventName;
-    }
+        clearBtn.addClickListener(e -> {
+            eventName.clear();
+            eventDate.clear();
+            eventStart.clear();
+            eventEnd.clear();
+            eventPlace.clear();
+            eventCity.clear();
+            eventFree.clear();
+            onSearch.run();
+        });
 
-    public void setEventName(TextField eventName) {
-        this.eventName = eventName;
-    }
+        searchBtn.addClickListener(e -> {
+            onSearch.run();
+        });
 
-    public DatePicker getEventDate() {
-        return eventDate;
-    }
-
-    public void setEventDate(DatePicker eventDate) {
-        this.eventDate = eventDate;
-    }
-
-    public TimePicker getEventStart() {
-        return eventStart;
-    }
-
-    public void setEventStart(TimePicker eventStart) {
-        this.eventStart = eventStart;
-    }
-
-    public TimePicker getEventEnd() {
-        return eventEnd;
-    }
-
-    public void setEventEnd(TimePicker eventEnd) {
-        this.eventEnd = eventEnd;
-    }
-
-    public TextField getEventPlace() {
-        return eventPlace;
-    }
-
-    public void setEventPlace(TextField eventPlace) {
-        this.eventPlace = eventPlace;
-    }
-
-    public TextField getEventCity() {
-        return eventCity;
-    }
-
-    public void setEventCity(TextField eventCity) {
-        this.eventCity = eventCity;
-    }
-
-    public Checkbox getEventFree() {
-        return eventFree;
-    }
-
-    public void setEventFree(Checkbox eventFree) {
-        this.eventFree = eventFree;
+        setPadding(false);
+        setMargin(false);
+        searchBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        clearBtn.addThemeVariants(ButtonVariant.LUMO_ERROR);
+        add(eventName, eventDate, eventStart, eventEnd, eventPlace, eventCity, eventFree, searchBtn, clearBtn);
     }
 
     @Override
@@ -120,19 +93,12 @@ public class Filters implements Specification<Event>{
                 "%" + eventCity.getValue().toLowerCase() + "%");
             predicateList.add(eventCityPredicate);
         }
-        if (eventFree != null) {
-            Predicate eventFreePredicate = criteriaBuilder
-                .equal(root.get("free"), true);
+        if (eventFree.getValue() != null && eventFree.getValue()) {
+            Predicate eventFreePredicate = criteriaBuilder.equal(root.get("free"), true);
             predicateList.add(eventFreePredicate);
         }
-        // if (predicateList.isEmpty()) {
-        //     return criteriaBuilder.conjunction();
-        // }
 
-        //return criteriaBuilder.and(predicateList.toArray(Predicate[]::new));
-       return criteriaBuilder.and(predicateList.toArray(new Predicate[0]));
+        return criteriaBuilder.and(predicateList.toArray(Predicate[]::new));
     }
-    
-
-
 }
+// return criteriaBuilder.and(predicateList.toArray(new Predicate[0]));
