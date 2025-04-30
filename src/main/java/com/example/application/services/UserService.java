@@ -43,7 +43,7 @@ public class UserService {
 
     // Käyttäjätunnuksen saatavuus
     public Boolean userNameAvailable(String username) {
-        return userRepository.findByUsername(username).isPresent();
+        return userRepository.findByUsername(username).isEmpty();
     }
 
 }

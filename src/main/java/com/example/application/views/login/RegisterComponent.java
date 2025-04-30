@@ -62,6 +62,7 @@ public class RegisterComponent extends Div {
             .bind(User::getUsername, User::setUsername);
         binder.forField(firstNameField).asRequired("Pakollinen kenttä")
             .bind(User::getFirstName, User::setFirstName);
+        binder.forField(lastNameField).bind(User::getLastName, User::setLastName);
         binder.forField(passwordField).asRequired("Salasana on pakollinen")
             .withValidator(pw -> pw.length() >= 8, "Salasanan minimimäärä on 8 merkkiä")
             .bind(User::getHashedPassword,
