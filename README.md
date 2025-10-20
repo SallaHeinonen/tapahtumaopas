@@ -5,4 +5,3 @@ It handles database with multiple tables, containing both backend-commands and t
 
 On the main page of Tapahtumaopas there are multiple different events, which can be narrowed to fewer options with different search criteria.<br>
 You can log in with User and Admin-username, an Admin has the rights to see all pages, create, edit and remove events. A User can create a new event.
-_Created during my third year of studies._
